@@ -1,0 +1,7 @@
+*.*
+*
+!*/
+!*.[cSh]
+!.gitignore
+!Makefile
+!exp[0-9]/**/*
