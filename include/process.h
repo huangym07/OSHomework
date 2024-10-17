@@ -1,6 +1,7 @@
 #ifndef __PROCESS_H__
 #define __PROCESS_H__
 
+#define MAX_PROCESS_NUMBER 10
 #define MAX_PROCESS_NAME 30
 
 typedef int ProcessDataType;
@@ -18,5 +19,8 @@ typedef struct Process {
 									weighted_turnaround_time; // 带权周转时间
 	ProcessDataType priority; // 优先级（越大，优先级越高）
 	ProcessDataType run_order; // 运行次序
-}
+} Process;
+
+Process process[MAX_PROCESS_NUMBER];
+
 #endif
