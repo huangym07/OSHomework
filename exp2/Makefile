@@ -8,9 +8,9 @@ OBJS := $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS)))))
 BIN = $(BUILD_DIR)/exp2
 
 CC = gcc
-CFLAGS = -MMD -O3 -I$(INC_PATH)
-
-CFLAGS += -DDEBUG
+CFLAGS = -MMD -O3
+CFLAGS += -I$(INC_PATH)
+CFLAGS += -g -DDEBUG
 
 # 这里 OBJS 与 .o 中间不要有空格，会识别成 NULL character
 -include $(OBJS:.o=.d)

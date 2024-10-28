@@ -27,5 +27,6 @@ typedef struct Process {
 Process process[MAX_PROCESS_NUMBER];
 
 typedef void(* schedule)();
+typedef int(* process_cmp)(Process *, Process *, double);
 
 #endif
