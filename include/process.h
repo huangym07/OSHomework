@@ -29,4 +29,13 @@ Process process[MAX_PROCESS_NUMBER];
 typedef void(* schedule)();
 typedef int(* process_cmp)(Process *, Process *, double);
 
+void input_process();
+void output_process();
+void update_process(Process *, int *, double *);
+void reset_process(Process *);
+void reset_all_process(Process *, int);
+int find_first_arrive(Process *, int);
+int find_best_arrived(Process *, int, process_cmp, double);
+void schedule_process(process_cmp);
+
 #endif

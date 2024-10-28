@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <process.h>
-#include <assert.h>
 
 #ifdef DEBUG
 #define debug(M, ...) fprintf(stderr, "[DEBUG]: file %s, line %d: " M "\n", __FILE__, __LINE__, ##__VA_ARGS__)
@@ -117,52 +116,36 @@ void sche1() {
 	double clk = -1; // 上一个进程结束运行时间
 	int index = -1, order = 1;
 
-	int count = 0;
 	while(1) {
 		if(index >= 0) process[index].state = FINISH;
 
 		if((index = find_first_arrive(process, process_num)) == -1)
 			break;
 
-		assert(++count <= 5);
-
 		update_process(&process[index], &order, &clk);
 	}
 }
 
-int sche2_cmp(Process *pro1, Process *pro2, double clk) {
-	return pro1->priority < pro2->priority;
-}
-
-void sche2() {
+void schedule_process(process_cmp cmp) {
 	double clk = -1; // 上一个进程结束运行时间
-	int ok = 1; // 是否全部运行结束
 	int index = -1, order = 1; 
 	
-	int count = 0;
 	while(1) {
 		if(index >= 0) process[index].state = FINISH;
 
-		index = -1, ok = 1;
 		int have = 0; // 是否有已到达，未运行的进程
 		/* 上一个进程结束时，是否有未运行的已到达的进程 
-		 * 如果有，在其中找到优先级最高的，即优先数最小的
+		 * 如果有，在其中根据比较函数找到最优进程
 		 * 如果没有，在未到达的进程中，找到到达时间最早的
 		 * */
 		for(int i = 0; i < process_num; i++) {
 			Process *cur = &process[i];
-			if(cur->state == READY) {
-				ok = 0;
-				if(process[i].arrive_time <= clk) have = 1;
-			}
+			if(cur->state == READY && cur->arrive_time <= clk)
+				have = 1;
 		}
 
-		assert(++count <= 5);
-
-		if(ok) break;
-
 		if(have) {
-			if((index = find_best_arrived(process, process_num, sche2_cmp, clk)) == -1)
+			if((index = find_best_arrived(process, process_num, cmp, clk)) == -1)
 				break;
 		} else {
 			if((index = find_first_arrive(process, process_num)) == -1) 
@@ -173,47 +156,12 @@ void sche2() {
 	}
 }
 
-int sche3_cmp(Process *pro1, Process *pro2, double clk) {
-	return pro1->run_time < pro2->run_time;
+int sche2_cmp(Process *pro1, Process *pro2, double clk) {
+	return pro1->priority < pro2->priority;
 }
 
-void sche3() {
-	double clk = -1; // 上一个进程结束运行时间
-	int ok = 1; // 是否全部运行结束
-	int index = -1, order = 1;
-
-	int count = 0;
-	while(1) {
-		if(index >= 0) process[index].state = FINISH;
-
-		index = -1, ok = 1;
-		int have = 0; // 是否有已到达，未运行的进程
-		/* 上一个进程结束时，是否有未运行的已到达的进程 
-			* 如果有，在其中找到运行时间最短的
-			* 如果没有，在未到达的进程中，找到到达时间最早的
-			* */
-		for(int i = 0; i < process_num; i++) {
-			Process *pro = &process[i];
-			if(pro->state == READY) {
-				ok = 0;
-				if(pro->arrive_time <= clk) have = 1;
-			}
-		}
-
-		assert(++count <= 5);
-
-		if(ok) break;
-
-		if(have) {
-			if((index = find_best_arrived(process, process_num, sche3_cmp, clk)) == -1)
-				break;
-		} else {
-			if((index = find_first_arrive(process, process_num)) == -1)
-				break;
-		}
-
-		update_process(&process[index], &order, &clk);
-	}
+int sche3_cmp(Process *pro1, Process *pro2, double clk) {
+	return pro1->run_time < pro2->run_time;
 }
 
 int sche4_cmp(Process *pro1, Process *pro2, double clk) {
@@ -224,43 +172,16 @@ int sche4_cmp(Process *pro1, Process *pro2, double clk) {
 	return rps_pro1 > rps_pro2 || (rps_pro1 == rps_pro2 && pro1->arrive_time < pro2->arrive_time);
 }
 
+void sche2() {
+	schedule_process(sche2_cmp);
+}
+
+void sche3() {
+	schedule_process(sche3_cmp);
+}
+
 void sche4() {
-	double clk = -1; // 上一个进程结束运行时间
-	int ok = 1; // 是否全部运行结束
-	int index = -1, order = 1;
-
-	int count = 0;
-	while(1) {
-		if(index >= 0) process[index].state = FINISH;
-
-		index = -1; ok = 1;
-		int have = 0; // 是否有已到达，未运行的进程
-		/* 上一个进程结束时，是否有未运行的已到达的进程 
-			* 如果有，在其中找到响应比最高的
-			* 如果没有，在未到达的进程中，找到到达时间最早的
-			* */
-		for(int i = 0; i < process_num; i++) {
-			Process *cur = &process[i];
-			if(cur->state == READY) {
-				ok = 0;
-				if(cur->arrive_time <= clk) have = 1;
-			}
-		}
-
-		assert(++count <= 5);
-
-		if(ok) break;
-
-		if(have) {
-			if((index = find_best_arrived(process, process_num, sche4_cmp, clk)) == -1)
-				break;
-		} else {
-			if((index = find_first_arrive(process, process_num)) == -1)
-				break;
-		}
-
-		update_process(&process[index], &order, &clk);
-	}
+	schedule_process(sche4_cmp);
 }
 
 schedule sches[] = {
