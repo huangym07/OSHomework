@@ -3,7 +3,6 @@
 
 #define MAX_PROCESS_NUMBER 10
 #define MAX_PROCESS_NAME 30
-#define MAX_SCHEDULE 4
 
 enum State {READY = 0, RUNNING, FINISH}; // 准备就绪，运行中，运行结束 
 
@@ -28,6 +27,5 @@ typedef struct Process {
 Process process[MAX_PROCESS_NUMBER];
 
 typedef void(* schedule)();
-schedule sches[MAX_SCHEDULE];
 
 #endif
