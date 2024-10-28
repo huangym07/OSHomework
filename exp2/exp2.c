@@ -233,10 +233,64 @@ void sche3() {
 	}
 }
 
+void sche4() {
+	double clk = -1; // 上一个进程结束运行时间
+	int ok = 1; // 是否全部运行结束
+	int index = -1, order = 1;
+
+	int count = 0;
+	while(1) {
+		if(index >= 0) process[index].state = FINISH;
+
+		index = -1; ok = 1;
+		int have = 0; // 是否有已到达，未运行的进程
+		/* 上一个进程结束时，是否有未运行的已到达的进程 
+			* 如果有，在其中找到响应比最高的
+			* 如果没有，在未到达的进程中，找到到达时间最早的
+			* */
+		for(int i = 0; i < process_num; i++) {
+			Process *cur = &process[i];
+			if(cur->state == READY) {
+				ok = 0;
+				if(cur->arrive_time <= clk) have = 1;
+			}
+		}
+
+		assert(++count <= 5);
+
+		if(ok) break;
+
+		if(have) {
+			for(int i = 0; i < process_num; i++) {
+				Process *cur = &process[i];
+				if(cur->state == READY && cur->arrive_time <= clk) {
+					if(index == -1) {
+						index = i;
+						continue;
+					}
+
+					Process *pro = &process[index];
+					// response time 响应比
+					double rps_cur = 1 + (clk - cur->arrive_time) / cur->run_time;
+					double rps_pro = 1 + (clk - pro->arrive_time) / pro->run_time;
+					if(rps_cur > rps_pro || (rps_cur == rps_pro && cur->arrive_time < pro->arrive_time))
+						index = i;
+				}
+			}
+		} else {
+			if((index = find_first_arrive(process, process_num)) == -1)
+				break;
+		}
+
+		update_process(&process[index], &order, &clk);
+	}
+}
+
 schedule sches[] = {
 	[0]		sche1,
 	[1]		sche2,
 	[2]		sche3,
+	[3]		sche4
 };
 
 int main(int argc, char *argv[]) {
