@@ -5,4 +5,5 @@
 !.gitignore
 !*.[cSh]
 !*.sh
+!test.txt
 /build/

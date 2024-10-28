@@ -10,6 +10,8 @@ BIN = $(BUILD_DIR)/exp2
 CC = gcc
 CFLAGS = -MMD -O3 -I$(INC_PATH)
 
+CFLAGS += -DDEBUG
+
 # 这里 OBJS 与 .o 中间不要有空格，会识别成 NULL character
 -include $(OBJS:.o=.d)
 
@@ -18,7 +20,7 @@ $(shell mkdir -p $(OBJ_DIR))
 default: $(BIN)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -c -o $@ $^
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(BIN): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
