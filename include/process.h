@@ -13,7 +13,7 @@ typedef struct Process {
 	char name[MAX_PROCESS_NAME]; // 进程名
 	double arrive_time; // 到达时间
 	double run_time; // 运行时间
-	int priority; // 优先级（越大，优先级越高）
+	int priority; // 优先级（优先数越小，优先级越高）
 	
 	State state; // 进程状态
 

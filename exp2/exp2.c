@@ -79,6 +79,26 @@ void reset_all_process(Process *pros, int num) {
 	}
 }
 
+// 从 pros 处开始的 num 个进程中，找到准备就绪的最先到达的进程
+int find_first_arrive(Process *pros, int num) {
+	int index = -1;
+	for(int i = 0; i < num; i++) {
+		Process *cur = pros + i;
+		if(cur->state == READY) {
+			if(index == -1) {
+				index = i;
+				continue;
+			} 
+
+			Process *pro = pros + index;
+			if(cur->arrive_time < pro->arrive_time)
+				index = i;
+		}
+	}
+
+	return index;
+}
+
 void sche1() {
 	double clk = -1; // 上一个进程结束运行时间
 	int ok = 1; // 是否全部运行结束
@@ -88,20 +108,24 @@ void sche1() {
 	while(1) {
 		if(index >= 0) process[index].state = FINISH;
 
-		index = 0; ok = 1;
+		index = -1; ok = 1;
 		for(int i = 0; i < process_num; i++) {
-			if(process[i].state == READY) {
+			Process *cur = &process[i];
+			if(cur->state == READY) {
 				ok = 0;
 
-				if(process[index].state != READY || process[i].arrive_time < process[index].arrive_time) {
+				if(index == -1) {
 					index = i;
-				}
+					continue;
+				} 
+
+				Process *pro = &process[index];
+				if(cur->arrive_time < pro->arrive_time)
+					index = i;
 			}
 		}
 
 		assert(++count <= 5);
-		// debug("count is %d, ok is %d", count, ok);
-		// debug("index is %d", index);
 
 		if(ok) break;
 
@@ -112,46 +136,97 @@ void sche1() {
 void sche2() {
 	double clk = -1; // 上一个进程结束运行时间
 	int ok = 1; // 是否全部运行结束
-	int index = -1, pmin = ~(1 << 31), order = 1; // pmin 优先数越小，优先级越高
+	int index = -1, order = 1; 
 	
 	int count = 0;
 	while(1) {
 		if(index >= 0) process[index].state = FINISH;
 
-		index = 0, ok = 1;
+		index = -1, ok = 1;
 		int have = 0; // 是否有已到达，未运行的进程
 		/* 上一个进程结束时，是否有未运行的已到达的进程 
 		 * 如果有，在其中找到优先级最高的，即优先数最小的
 		 * 如果没有，在未到达的进程中，找到到达时间最早的
 		 * */
 		for(int i = 0; i < process_num; i++) {
-			if(process[i].state == READY) {
+			Process *cur = &process[i];
+			if(cur->state == READY) {
 				ok = 0;
 				if(process[i].arrive_time <= clk) have = 1;
 			}
 		}
 
 		assert(++count <= 5);
+
 		if(ok) break;
 
-		printf("count is %d, and have is %d\n", count, have);
 		if(have) {
 			for(int i = 0; i < process_num; i++) {
-				if(process[i].state == READY && process[i].arrive_time <= clk) {
-					if(process[index].state != READY || process[index].arrive_time > clk || (process[i].priority < process[index].priority)) {
-						pmin = process[i].priority;
+				Process *cur = &process[i];
+				if(cur->state == READY && cur->arrive_time <= clk) {
+					if(index == -1) {
 						index = i;
+						continue;
 					}
+
+					Process *pro = &process[index];
+					if(cur->priority < pro->priority)
+						index = i;
 				}
 			}
 		} else {
+			if((index = find_first_arrive(process, process_num)) == -1) 
+				break;
+		}
+
+		update_process(&process[index], &order, &clk);
+	}
+}
+
+void sche3() {
+	double clk = -1; // 上一个进程结束运行时间
+	int ok = 1; // 是否全部运行结束
+	int index = -1, order = 1;
+
+	int count = 0;
+	while(1) {
+		if(index >= 0) process[index].state = FINISH;
+
+		index = -1, ok = 1;
+		int have = 0; // 是否有已到达，未运行的进程
+		/* 上一个进程结束时，是否有未运行的已到达的进程 
+			* 如果有，在其中找到运行时间最短的
+			* 如果没有，在未到达的进程中，找到到达时间最早的
+			* */
+		for(int i = 0; i < process_num; i++) {
+			Process *pro = &process[i];
+			if(pro->state == READY) {
+				ok = 0;
+				if(pro->arrive_time <= clk) have = 1;
+			}
+		}
+
+		assert(++count <= 5);
+
+		if(ok) break;
+
+		if(have) {
 			for(int i = 0; i < process_num; i++) {
-				if(process[i].state == READY && process[i].arrive_time > clk) {
-					if(process[index].state != READY || process[index].arrive_time <= clk || process[i].arrive_time < process[index].arrive_time) {
+				Process *cur = &process[i];
+				if(cur->state == READY && cur->arrive_time <= clk) {
+					if(index == -1) {
 						index = i;
-					}
+						continue;
+					} 
+
+					Process *pro = &process[index];
+					if(cur->run_time < pro->run_time) 
+						index = i;
 				}
 			}
+		} else {
+			if((index = find_first_arrive(process, process_num)) == -1)
+				break;
 		}
 
 		update_process(&process[index], &order, &clk);
@@ -161,6 +236,7 @@ void sche2() {
 schedule sches[] = {
 	[0]		sche1,
 	[1]		sche2,
+	[2]		sche3,
 };
 
 int main(int argc, char *argv[]) {
