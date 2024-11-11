@@ -4,5 +4,6 @@
 !*.[cSh]
 !.gitignore
 !Makefile
+!README.md
 !exp[0-9]/**/*
 !include/**/*

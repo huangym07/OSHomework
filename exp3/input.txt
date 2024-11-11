@@ -1,0 +1,21 @@
+0						1						5						0						11
+1						1						8						0						12
+2						1						9						0						13
+3						1						1						0						21
+4						0												0						22
+5						0												0						23
+6						0												0						121
+
+
+add				0		70
+add				1		50
+multiply	2		15
+store			3		21
+load			0		56
+sub				6		40
+move			4		53
+add				5		23
+store			1		37
+load			2		78
+add				4		1
+store			6		84
