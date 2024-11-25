@@ -14,7 +14,7 @@ struct {
 } cmd_table[] = {
 	{"create",		fs_create},
 	{"open",			fs_open},
-	// {"close",			fs_close},
+	{"close",			fs_close},
 	{"read",			fs_read},
 	{"write",			fs_write},
 	// {"delete",		fs_delete},
@@ -341,6 +341,27 @@ int fs_read() {
 	printf("模拟读取 %d -> %d\n", UOF[index_file_uof].readp, UOF[index_file_uof].readp + UOF[index_file_uof].len);
 	printf("修改读指针\n");
 	printf("读文件成功\n");
+
+	return 0;
+}
+
+int fs_close() {
+	char fname[20];
+	printf("请输入要关闭的文件名：\n");
+	if(scanf("%s", fname) != 1) exit(-1);
+
+	int index_file_uof = get_index_file_uof(fname);
+	if(index_file_uof == -1) {
+		printf("文件未打开，关闭失败\n");
+		return -1;
+	}
+
+	if(UOF[index_file_uof].fstatue == 1) {
+		printf("置文件结束标志\n");
+	}
+
+	init_UOF(index_file_uof, "", "", 0, 0, 0, 0);
+	printf("文件关闭成功\n");
 
 	return 0;
 }
