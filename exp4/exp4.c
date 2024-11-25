@@ -18,6 +18,7 @@ struct {
 	{"read",			fs_read},
 	{"write",			fs_write},
 	{"delete",		fs_delete},
+	{"list",			fs_list},
 };
 
 void clear_all() {
@@ -171,7 +172,7 @@ int login() {
 void get_and_parse_cmd() {
 	while(1) {
 		printf("请输入命令：\n");
-		printf("create: 建立文件\nopen: 打开文件\nclose: 关闭文件\nread: 读取文件\nwrite: 写入文件\ndelete: 删除文件\nend: 程序结束\n");
+		printf("create: 建立文件\nopen: 打开文件\nclose: 关闭文件\nread: 读取文件\nwrite: 写入文件\ndelete: 删除文件\nlist: 展示所有用户的所有文件\nend: 程序结束\n");
 		if(scanf("%s", cmd) != 1) exit(-1);
 
 		if(strcmp(cmd, "end") == 0) {
@@ -389,6 +390,21 @@ int fs_delete() {
 	UFD[index_file_ufd].faddr = 0;
 
 	printf("删除文件成功\n");
+
+	return 0;
+}
+
+int fs_list() {
+	printf("%20s%20s%20s%20s\n", "文件名", "文件属性", "记录长度", "文件首地址");
+	for(int i = 0; i < MAX_USER; i++) {
+		if(strlen(MFD[i].uname) == 0) continue;
+		printf("用户名为 %s 的用户拥有文件：\n", MFD[i].uname);
+		for(int j = 0; j < MAX_FILE; j++) {
+			if(strcmp(UFD[j].uname, MFD[i].uname) == 0) {
+				printf("%15s%15s%15d%15d\n", UFD[j].fname, UFD[j].fattr, UFD[j].len, UFD[j].faddr);
+			}
+		}
+	}
 
 	return 0;
 }

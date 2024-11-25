@@ -44,6 +44,7 @@ int fs_close();
 int fs_read();
 int fs_write();
 int fs_delete();
+int fs_list();
 
 typedef int (* fs_operation_pointer)();
 
