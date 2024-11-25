@@ -17,7 +17,7 @@ struct {
 	{"close",			fs_close},
 	{"read",			fs_read},
 	{"write",			fs_write},
-	// {"delete",		fs_delete},
+	{"delete",		fs_delete},
 };
 
 void clear_all() {
@@ -362,6 +362,33 @@ int fs_close() {
 
 	init_UOF(index_file_uof, "", "", 0, 0, 0, 0);
 	printf("文件关闭成功\n");
+
+	return 0;
+}
+
+int fs_delete() {
+	char fname[20];
+	printf("请输入要删除的文件名：\n");
+	if(scanf("%s", fname) != 1) exit(-1);
+
+	int index_file_ufd = get_index_file_ufd(fname);
+	if(index_file_ufd == -1) {
+		printf("UFD 中无该文件，删除失败\n");
+		return -1;
+	}
+
+	int index_file_uof = get_index_file_uof(fname);
+	if(index_file_uof != -1) {
+		init_UOF(index_file_uof, "", "", 0, 0, 0, 0);
+	}
+
+	disk_rest += UFD[index_file_ufd].len;
+	for(int i = 0; i < UFD[index_file_ufd].len; i++) bitmap[i + UFD[index_file_ufd].faddr] = 0;
+
+	init_UFD(index_file_ufd, "", "", "", 0);
+	UFD[index_file_ufd].faddr = 0;
+
+	printf("删除文件成功\n");
 
 	return 0;
 }
