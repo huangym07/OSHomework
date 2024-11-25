@@ -16,7 +16,7 @@ struct {
 	{"open",			fs_open},
 	// {"close",			fs_close},
 	// {"read",			fs_read},
-	// {"write",			fs_write},
+	{"write",			fs_write},
 	// {"delete",		fs_delete},
 };
 
@@ -46,6 +46,49 @@ void init_UOF(int index, const char *fname, const char *fattr, int len, int fsta
 	UOF[index].fstatue = fstatue;
 	UOF[index].readp = readp;
 	UOF[index].writep = writep;
+}
+
+int get_index_file_ufd(const char *fname) {
+	for(int i = 0; i < MAX_FILE; i++) {
+		if(strcmp(login_uname, UFD[i].uname) == 0
+				&& strcmp(fname, UFD[i].fname) == 0) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+int get_index_file_uof(const char *fname) {
+	for(int i = 0; i < MAX_USER_OPEN_FILE; i++) {
+		if(strcmp(UOF[i].fname, fname) == 0) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+int get_index_free_ufd() {
+	for(int i = 0; i < MAX_FILE; i++) {
+		if(strlen(UFD[i].uname) == 0) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+int get_index_free_uof() {
+	for(int i = 0; i < MAX_USER_OPEN_FILE; i++) {
+		if(strlen(UOF[i].fname) == 0) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+int count_user_file() {
+	int count = 0;
+	for(int i = 0; i < MAX_FILE; i++) count += strcmp(UFD[i].uname, login_uname) == 0;
+	return count;
 }
 
 void init() {
@@ -128,7 +171,7 @@ int login() {
 void get_and_parse_cmd() {
 	while(1) {
 		printf("请输入命令：\n");
-		printf("create: 建立文件\nopen: 打开文件\nclose: 关闭文件\nread: 读取文件\nwrite: 写入文件\ndelete: 删除文件\n");
+		printf("create: 建立文件\nopen: 打开文件\nclose: 关闭文件\nread: 读取文件\nwrite: 写入文件\ndelete: 删除文件\nend: 程序结束\n");
 		if(scanf("%s", cmd) != 1) exit(-1);
 
 		if(strcmp(cmd, "end") == 0) {
@@ -163,35 +206,19 @@ int fs_create() {
 	printf("请输入要创建的文件名，文件长度以及文件属性：\n");
 	if(scanf("%s%d%s", fname, &len, fattr) != 3) exit(-1);
 
-	for(int i = 0; i < MAX_FILE; i++) {
-		if(strcmp(UFD[i].uname, login_uname) == 0
-				&& strcmp(UFD[i].fname, fname) == 0) {
-			printf("用户 %s 有同名文件 %s，不能创建\n", login_uname, fname);
-			return -1;
-		}
+	if(get_index_file_ufd(fname) != -1) {
+		printf("用户 %s 有同名文件 %s，不能创建\n", login_uname, fname);
+		return -1;
 	}
 
-	int user_file_count = 0;
-	int	index_free_ufd = -1;
-	for(int i = 0; i < MAX_FILE; i++) {
-		if(index_free_ufd == -1 && strlen(UFD[i].uname) == 0) index_free_ufd = i;
-		if(strcmp(UFD[i].uname, login_uname) == 0) {
-			user_file_count++;
-		}
-	}
+	int	index_free_ufd = get_index_free_ufd();
 
-	if(index_free_ufd == -1 || user_file_count >= MAX_USER_FILE) {
+	if(index_free_ufd == -1 || count_user_file() >= MAX_USER_FILE) {
 		printf("在 UFD 中无空登记栏，不能建立\n");
 		return -1;
 	}
 
-	int index_free_uof = -1;
-	for(int i = 0; i < MAX_USER_OPEN_FILE; i++) {
-		if(strlen(UOF[i].fname) == 0) {
-			index_free_uof = i;
-			break;
-		}
-	}
+	int index_free_uof = get_index_free_uof();
 
 	if(index_free_uof == -1) {
 		printf("在 UOF 中无空登记栏，不能创建，请先关闭文件\n");
@@ -222,26 +249,13 @@ int fs_open() {
 	printf("请输入要打开的文件名与操作类型：\n");	
 	if(scanf("%s%s", fname, fop) != 2) exit(-1);
 
-	int index_file_ufd = -1;
-	for(int i = 0; i < MAX_FILE; i++) {
-		if(strcmp(login_uname, UFD[i].uname) == 0
-				&& strcmp(fname, UFD[i].fname) == 0) {
-				index_file_ufd = i;
-				break;
-		}
-	}
+	int index_file_ufd = get_index_file_ufd(fname);
 
 	if(index_file_ufd == -1) {
 		printf("文件不存在，不能打开\n");
 	}
 
-	int index_file_uof = -1;
-	for(int i = 0; i < MAX_USER_OPEN_FILE; i++) {
-		if(strcmp(UOF[i].fname, fname) == 0) {
-			index_file_uof = i;
-			break;
-		}
-	}
+	int index_file_uof = get_index_file_uof(fname);
 
 	if(index_file_uof != -1) {
 		if(UOF[index_file_uof].fstatue == 1) {
@@ -251,13 +265,7 @@ int fs_open() {
 		}
 	} else {
 		if(strcmp(fop, UFD[index_file_ufd].fattr) == 0) {
-			int index_free_uof = -1;
-			for(int i = 0; i < MAX_USER_OPEN_FILE; i++) {
-				if(strlen(UOF[i].fname) == 0) {
-					index_free_uof = i;
-					break;
-				}
-			}
+			int index_free_uof = get_index_free_uof();
 
 			if(index_free_uof == -1) {
 				printf("UOF 无空栏，无法打开文件\n");
@@ -272,6 +280,13 @@ int fs_open() {
 		}
 	}
 
+	return 0;
+}
+
+int fs_write() {
+	
+
+	return 0;
 }
 
 int main() {
