@@ -15,7 +15,7 @@ struct {
 	{"create",		fs_create},
 	{"open",			fs_open},
 	// {"close",			fs_close},
-	// {"read",			fs_read},
+	{"read",			fs_read},
 	{"write",			fs_write},
 	// {"delete",		fs_delete},
 };
@@ -94,7 +94,7 @@ int count_user_file() {
 void init() {
 	clear_all();
 
-	disk_rest = DISK_SIZE;
+	disk_rest = DISK_SIZE - 1;
 
 	/* Initialize MFD */
 	init_MFD(0, "user1", 20);
@@ -237,7 +237,7 @@ int fs_create() {
 	init_UFD(index_free_ufd, login_uname, fname, fattr, len);
 	UFD[index_free_ufd].faddr = free_block_no;
 
-	init_UOF(index_free_uof, fname, fattr, len, 1, 0, free_block_no);
+	init_UOF(index_free_uof, fname, fattr, len, 1, free_block_no, free_block_no);
 
 	printf("建立成功\n");
 
@@ -322,6 +322,25 @@ int fs_write() {
 			printf("写文件成功\n");
 		}
 	}
+
+	return 0;
+}
+
+int fs_read() {
+	char fname[20];
+	printf("请输入要读取的文件名：\n");
+	if(scanf("%s", fname) != 1) exit(-1);
+
+	int index_file_uof = get_index_file_uof(fname);
+	if(index_file_uof == -1) {
+		printf("文件未打开，不能读\n");
+		return -1;
+	}
+
+	printf("从读指针 %d 得到当前地址\n", UOF[index_file_uof].readp);
+	printf("模拟读取 %d -> %d\n", UOF[index_file_uof].readp, UOF[index_file_uof].readp + UOF[index_file_uof].len);
+	printf("修改读指针\n");
+	printf("读文件成功\n");
 
 	return 0;
 }
