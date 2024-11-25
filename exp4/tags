@@ -1,0 +1,29 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ARRLEN	exp4.c	5;"	d	file:
+BIN	Makefile	/^BIN = $(BUILD_DIR)\/exp4$/;"	m
+BUILD_DIR	Makefile	/^BUILD_DIR = $(SRC_DIR)\/build$/;"	m
+CC	Makefile	/^CC = gcc$/;"	m
+CFLAGS	Makefile	/^CFLAGS = -MMD -O3$/;"	m
+INC_PATH	Makefile	/^INC_PATH = $(abspath ..\/include)$/;"	m
+OBJS	Makefile	/^OBJS = $(addprefix $(OBJ_DIR)\/, $(addsuffix .o, $(basename $(notdir $(SRCS)))))$/;"	m
+OBJ_DIR	Makefile	/^OBJ_DIR = $(BUILD_DIR)\/obj_dir$/;"	m
+SRCS	Makefile	/^SRCS = $(shell find $(SRC_DIR) -name "*.c")$/;"	m
+SRC_DIR	Makefile	/^SRC_DIR = $(abspath .)$/;"	m
+clear_all	exp4.c	/^void clear_all() {$/;"	f
+cmd	exp4.c	/^char cmd[50];$/;"	v
+debug_print	exp4.c	/^void debug_print() {$/;"	f
+fs_create	exp4.c	/^int fs_create() {$/;"	f
+fs_open	exp4.c	/^int fs_open() {$/;"	f
+get_and_parse_cmd	exp4.c	/^void get_and_parse_cmd() {$/;"	f
+init	exp4.c	/^void init() {$/;"	f
+init_MFD	exp4.c	/^void init_MFD(int index, const char *uname, int uaddr) {$/;"	f
+init_UFD	exp4.c	/^void init_UFD(int index, const char *uname, const char *fname, const char *fattr, int len) {$/;"	f
+init_UOF	exp4.c	/^void init_UOF(int index, const char *fname, const char *fattr, int fstatue, int readp, int writep) {$/;"	f
+login	exp4.c	/^int login() {$/;"	f
+login_uname	exp4.c	/^char login_uname[20];$/;"	v
+main	exp4.c	/^int main() {$/;"	f
