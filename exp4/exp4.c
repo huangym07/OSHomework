@@ -110,13 +110,13 @@ void init() {
 
 	/* Initialize UFD */
 	init_UFD(0, "user1", "u1f1", "r", 10);
-	init_UFD(1, "user1", "u1f2", "r", 20);
-	init_UFD(2, "user1", "u1f3", "r", 30);
-	init_UFD(3, "user2", "u2f1", "r", 25);
-	init_UFD(4, "user2", "u2f2", "r", 35);
-	init_UFD(5, "user2", "u2f3", "r", 15);
+	init_UFD(1, "user1", "u1f2", "w", 20);
+	init_UFD(2, "user1", "u1f3", "w", 30);
+	init_UFD(3, "user2", "u2f1", "w", 25);
+	init_UFD(4, "user2", "u2f2", "w", 35);
+	init_UFD(5, "user2", "u2f3", "w", 15);
 	init_UFD(6, "user2", "u2f4", "w", 5);
-	init_UFD(7, "user5", "u5f1", "w", 40);
+	init_UFD(7, "user5", "u5f1", "r", 40);
 	init_UFD(8, "user5", "u5f2", "w", 45);
 	/* Caculate file's first address. */
 	for(int i = 0; i < 9; i++) {
@@ -284,7 +284,44 @@ int fs_open() {
 }
 
 int fs_write() {
-	
+	char fname[20];
+	printf("请输入要写的文件名：\n");	
+	if(scanf("%s", fname) != 1) exit(-1);	
+
+	int index_file_uof = get_index_file_uof(fname);
+	if(index_file_uof == -1) {
+		printf("文件不存在，不能写\n");
+		return -1;
+	}
+
+	if(UOF[index_file_uof].fstatue == 1) {
+		printf("把记录信息写到写指针指出的磁盘块中 %d\n", UOF[index_file_uof].writep);
+		printf("修改写指针\n");
+		printf("写文件成功\n");
+	} else {
+		if(strcmp(UOF[index_file_uof].fattr, "r") == 0) {
+			printf("操作不合法，不能写\n");
+			return -1;
+		} else {
+			printf("是否是顺序修改（1 -> 是，0 -> 不是）：\n");
+			int op;
+			int block_no = -1;
+			if(scanf("%d", &op) != 1) exit(-1);
+
+			if(op == 1) {
+				block_no = UOF[index_file_uof].writep;
+				printf("取出写指针指出的块号 %d\n", UOF[index_file_uof].writep);
+				printf("修改写指针\n");
+			} else {
+				int index_file_ufd = get_index_file_ufd(fname);
+				block_no = UFD[index_file_ufd].faddr;
+				printf("找出存放指定记录的块号，此处默认指定记录存放在文件首地址指出的磁盘块号 %d\n", UFD[index_file_ufd].faddr);
+			}
+
+			printf("把记录信息写入到找到的磁盘块 %d\n", block_no);
+			printf("写文件成功\n");
+		}
+	}
 
 	return 0;
 }
