@@ -193,7 +193,7 @@ void get_and_parse_cmd() {
 			continue;
 		}
 
-		int ret = (*fsop)();	
+		int ret = fsop();	
 
 		if(ret != 0) {
 			printf("命令 %s 执行失败\n", cmd);
