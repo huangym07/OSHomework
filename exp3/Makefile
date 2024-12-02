@@ -1,5 +1,3 @@
-default: run
-
 SRC_DIR = $(abspath .)
 SRCS = $(shell find $(SRC_DIR) -name "*.c")
 INC_PATH = $(abspath ../include)
@@ -19,11 +17,12 @@ CFLAGS += -g -DDEBUG
 
 $(shell mkdir -p $(OBJ_DIR))
 
+$(BIN): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
+
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(BIN): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
 
 run: $(BIN)
 	@echo "-- exp3: 动态页式存储管理实验"

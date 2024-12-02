@@ -6,10 +6,13 @@ TARGET = $(patsubst %.c, %, $(SRC))
 
 all: $(TARGET)
 
+run: $(TARGET)
+	./$<
+
 $(TARGET): %: %.c
 	$(CC) $(CFLAGS) $^ -o $@
 
-.PHONY: clean
+.PHONY: clean run
 
 clean: 
 	rm $(TARGET)

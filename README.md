@@ -5,3 +5,4 @@ exp3												动态页式存储管理实验
 exp4												文件系统实验 
 README.md										read me
 
+使用方法：分别进入 exp1 ~ exp4 目录，根据其中的 README.md 进行 make 即可

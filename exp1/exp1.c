@@ -6,6 +6,8 @@
 int main() {
 	char str[20];
 	char s[3][20];	
+	
+	printf("请输入三个字符串:\n");
 	for(int i = 0; i < 3; i++) {
 		if(fscanf(stdin, "%s", s[i]) == 0) exit(1);
 	}
